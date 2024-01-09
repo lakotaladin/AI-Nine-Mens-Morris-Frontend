@@ -220,21 +220,11 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
         }
 
         setClicked(clicked);
-
-        // if (clicked && checkLine(square, index)) {
-        //     setRemoveStoneMode(true);
-        //     return;
-        // }
-
-        // if (clicked) {
-        //     toggleColor()
-        // }
-
-        // check for points
+        
     }
 
     function onStoneClick(square, index, stoneColor) {
-        console.log('stone clicked', square, index, stoneColor)
+        // console.log('stone clicked', square, index, stoneColor)
         if (removeStoneMode) {
             if (color === stoneColor) return;
 
@@ -491,6 +481,7 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
         return { color: player === 1 ? 'white' : 'black', square, index };
     }
 
+    //  This is for human - human game mode
     useEffect(() => {
         if (mode === 'human-human') return;
         async function getAiMove() {
