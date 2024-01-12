@@ -89,18 +89,41 @@ function Stone({ square, index, color, selected, onStoneClick }) {
         x = square * 10 + 10;
     }
     return (
-        <circle cx={x} cy={y} r={3} fill={color} stroke={selected && 'green' || 'transparent'} strokeWidth={0.5} onClick={() => onStoneClick(square, index, color)} />
+        <circle className={selected ? 'stone selected-circle' : 'stone'} cx={x} cy={y} r={3} fill={color} strokeWidth={0.5} onClick={() => onStoneClick(square, index, color)} />
     )
 }
 
 export default function Game({ mode, difficulty1, difficulty2, setModeSelection }) {
+    // console.log("Created by: Lakota Aladin");
+    
+    const [showModal, setShowModal] = useState(true);
     const [stones, setStones] = useState([])
-
+    const [jumpMode, setJumpMode] = useState(false);
     const [whiteRemaining, setWhiteRemaining] = useState(9)
     const [blackRemaining, setBlackRemaining] = useState(9)
-
     const whiteStonesCount = stones.filter(s => s.color === 'white').length
     const blackStonesCount = stones.filter(s => s.color === 'black').length
+    const [selectedStone, setSelectedStone] = useState(null);
+    const [removeStoneMode, setRemoveStoneMode] = useState(false);
+
+    
+    // Dodajte referencu za modal
+    const modalRef = useRef(null);
+
+    useEffect(() => {
+        // Logika za zatvaranje modala
+        const handleClickOutsideModal = (event) => {
+          if (showModal && modalRef.current && !modalRef.current.contains(event.target)) {
+            setShowModal(false);
+          }
+        };
+    
+        document.addEventListener('click', handleClickOutsideModal);
+    
+        return () => {
+          document.removeEventListener('click', handleClickOutsideModal);
+        };
+      }, [showModal]);
 
     useEffect(() => {
         if (whiteRemaining > 0 || blackRemaining > 0) return;
@@ -117,24 +140,22 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
         }
     }, [stones])
 
-    const [jumpMode, setJumpMode] = useState(false);
-
+    
     const [color, setColor] = useState('white')
     function toggleColor() {
         setColor(c => c === 'white' ? 'black' : 'white')
     }
 
-    const [selectedStone, setSelectedStone] = useState(null);
+    
 
-    const [removeStoneMode, setRemoveStoneMode] = useState(false);
 
     function checkLine(square, index) {
         if (index % 2 !== 0) {
             // centranli
             const prev = stones.find(s => s.square === square && s.index === index - 1);
             const next = stones.find(s => s.square === square && s.index === index + 1);
-            console.log('prev', prev)
-            console.log('next', next)
+            // console.log('prev', prev)
+            // console.log('next', next)
             if (prev && next && prev.color === color && next.color === color) {
                 return true;
             }
@@ -155,16 +176,15 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
             const prevPrevIndex = index - 2 >= 0 ? index - 2 : 6;
             const nextIndex = index + 1;
             const nextNextIndex = (index + 2) % 8;
-
             const prev = stones.find(s => s.square === square && s.index === prevIndex);
             const prevPrev = stones.find(s => s.square === square && s.index === prevPrevIndex);
-
-            // TODO: check what happens if two lines are created
+            
 
             if (prev && prevPrev && prev.color === color && prevPrev.color === color) {
                 return true;
             }
 
+            
             const next = stones.find(s => s.square === square && s.index === nextIndex);
             const nextNext = stones.find(s => s.square === square && s.index === nextNextIndex);
             
@@ -189,8 +209,10 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
         }
     }, [stones, clicked]);
 
+    
+    
     function onCircleClick(square, index) {
-        console.log('circle clicked', square, index);
+        // console.log('circle clicked', square, index);
         if (removeStoneMode) return;
 
         setClickedSquare(square);
@@ -223,6 +245,8 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
         
     }
 
+    
+    
     function onStoneClick(square, index, stoneColor) {
         // console.log('stone clicked', square, index, stoneColor)
         if (removeStoneMode) {
@@ -262,6 +286,8 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
         }
     }
 
+    
+    
     function generateConnectedLines() {
         const lines = [];
 
@@ -275,7 +301,7 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
                     if (!stone) continue indexLoop;
                     colors.push(stone.color);
                 }
-                if (colors.length !== 3) continue; // mozda ne treba
+                if (colors.length !== 3) continue; 
                 let lineColor;
                 if (colors.every(c => c === 'white')) {
                     lineColor = 'yellow';
@@ -346,10 +372,12 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
         return lines;
     }
 
+    
+    
     const connectedLines = useMemo(generateConnectedLines, [stones]);
-
     const [moveToStone, setMoveToStone] = useState(null);
 
+    
     function playMove(move) {
         switch (move[0]) {
             case 'set': {
@@ -359,8 +387,8 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
             }
             case 'move': {
                 const [to, from] = fromBackend(move);
-                console.log('from', from)
-                console.log('to', to)
+                // console.log('from', from)
+                // console.log('to', to)
                 onStoneClick(from.square, from.index, from.color);
                 setMoveToStone(to)
                 break;
@@ -373,6 +401,7 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
         }
     }
 
+    
     useEffect(() => {
         if (moveToStone) {
             onCircleClick(moveToStone.square, moveToStone.index);
@@ -380,6 +409,8 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
         setMoveToStone(null);
     }, [moveToStone])
 
+    
+    
     function indexToBackendIndex(index) {
         if (index < 3) {
             return [0, index];
@@ -399,6 +430,8 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
         }
     }
 
+    
+    
     function toBackendRepr() {
         // all-zero 3x3x3 matrix
         const matrix = Array(3)
@@ -449,6 +482,8 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
         return gameData
     }
 
+    
+    
     function fromBackend(move) {
         const [type, player, x, y, z, fromX, fromY, fromZ ] = move;
 
@@ -460,6 +495,9 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
             return [to, from];
         }
     }
+    
+    
+    
     function fromBackendCoordinates(move) {
         const [ type, player, x, y, z ] = move;
         const square = x;
@@ -481,6 +519,18 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
         return { color: player === 1 ? 'white' : 'black', square, index };
     }
 
+    // Restart game
+
+    function restartGame() {
+        setStones([]);
+        setWhiteRemaining(9);
+        setBlackRemaining(9);
+        setSelectedStone(null);
+        setRemoveStoneMode(false);
+        setJumpMode(false);
+        setColor('white');
+      }
+
     //  This is for human - human game mode
     useEffect(() => {
         if (mode === 'human-human') return;
@@ -489,7 +539,7 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
             try {
                 const response = await axios.post('http://localhost:8000/game/move/', gameData);
                 const newMove = response.data;
-                console.log(newMove.move)
+                // console.log(newMove.move)
                 playMove(newMove.move);
             } catch (e) {
                 console.error(e)
@@ -503,6 +553,41 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
 
     return (
         <div id="game-container">
+            {showModal && (
+        <div ref={modalRef} className="modal">
+          <div className='htp-modal'>
+            <h1>How to play</h1>
+            <p>
+                PLACE ALL YOUR PIECES <i>MEN</i> ON BOARD AND MOVE THEM TO FORM A LINE OF 3 PIECES <i>A MILL</i>.
+            </p>
+            <br/>
+            <p>ONCE YOU FORM A MILL, YOU CAN REMOVE ONE OF YOUR OPPONENT'S MEN. BREAK A MILL TO UNLOCK THE MILLS AGAIN.
+            </p>
+            <br/>
+            <p>
+                PIECES FROM A FORMED MILL CAN'T BE REMOVED UNLESS NO OTHER MEN ARE AVAILABLE.
+            </p>
+            <br/>
+            <p>
+                YOUR AIM IS TO LEAVE YOUR OPPONENT WITH EITHER 2 PIECES OR 0 MOVES!
+            </p>
+            <br/>
+          </div>
+        </div>
+      )}
+      {<div style={{width: "100%", padding: "0%", margin: "0%"}}>
+        <div className='game-header'>
+                <button onClick={restartGame} className='game-button' ><i className="ri-restart-fill"></i></button>
+                <button className='game-button' ><i className="ri-home-smile-line"></i></button>
+            </div>
+            <div className='game-section'>
+            <div className='player-options'>
+            <h3 style={{color: "white", fontWeight: "bolder", fontSize: "24px", borderBottom: "3px dotted black", marginBottom: "5px", display: "flex", flexDirection: "row"}} >Player 1 <div className="flipping-circle-white"></div></h3>
+                <h3>White remaining: {whiteRemaining}</h3>
+                <h3>White count: {whiteStonesCount}</h3>
+                {/* <h3>Jump mode: {JSON.stringify(jumpMode)}</h3>  */}
+                {/* Jump mode is true when there are tree remaining peaces */}
+            </div>
             <svg viewBox='0 0 100 100'>
                 <line className='board-line' x1={50} y1={10} x2={50} y2={30} />
                 <line className='board-line' x1={70} y1={50} x2={90} y2={50} />
@@ -511,7 +596,6 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
                 <BoardSquare padding={10} onCircleClick={onCircleClick} />
                 <BoardSquare padding={20} onCircleClick={onCircleClick} />
                 <BoardSquare padding={30} onCircleClick={onCircleClick} />
-                {/* {...generateConnectedLines()} */}
                 {...connectedLines}
 
                 {stones.map(({ square, index, color }) =>
@@ -525,14 +609,18 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
                     />
                 )}
             </svg>
-            <div>
-                <h3>Current player: {color}</h3>
-                <h3>White remaining: {whiteRemaining}</h3>
+            <div className='player-options'>
+            <h3 style={{color: "white", fontWeight: "bolder", fontSize: "24px", borderBottom: "3px dotted black", marginBottom: "5px", display: "flex", flexDirection: "row"}} >Player 2 <div className="flipping-circle-black"></div></h3>
                 <h3>Black remaining: {blackRemaining}</h3>
-                <h3>White count: {whiteStonesCount}</h3>
                 <h3>Black count: {blackStonesCount}</h3>
-                <h3>Jump mode: {JSON.stringify(jumpMode)}</h3>
+                {/* <h3>Jump mode: {JSON.stringify(jumpMode)}</h3> */}
             </div>
+            </div>
+            <div className='current-player'>
+                <h3>Turn: </h3>
+                <div className={"flipping-circle-" + color}></div>
+            </div>
+        </div>}
         </div>
     )
 }
