@@ -106,6 +106,8 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
     const [selectedStone, setSelectedStone] = useState(null);
     const [removeStoneMode, setRemoveStoneMode] = useState(false);
 
+    const playedMoves = useRef([]);
+
     
     // Dodajte referencu za modal
     const modalRef = useRef(null);
@@ -134,8 +136,31 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
             winner = 'white';
         }
 
+        const pastMoves = playedMoves.current;
+        const pastMovesLength = pastMoves.length;
+        if (pastMovesLength >= 8) {
+            const duplicatedFirst = pastMoves.slice(pastMovesLength - 8, pastMovesLength - 4);
+            const duplicatedLast = pastMoves.slice(pastMovesLength - 4, pastMovesLength);
+            let duplicated = true;
+            for (let i = 0; i < 4; i++) {
+                if (JSON.stringify(duplicatedFirst[i]) !== JSON.stringify(duplicatedLast[i])) {
+                    duplicated = false;
+                    break;
+                }
+            }
+            
+            if (duplicated) {
+                winner = 'draw';
+            }
+        }
+        
+
         if (winner) {
-            alert(`Game over! ${winner} won!`);
+            if (winner === 'draw') {
+                alert('Computer is playing the same moves infinitely');
+            } else {
+                alert(`Game over! ${winner} won!`);
+            }
             setModeSelection(true)
         }
     }, [stones])
@@ -149,21 +174,21 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
     
 
 
-    function checkLine(square, index) {
+    function  checkLine(square, index, stoneColor) {
         if (index % 2 !== 0) {
             // centranli
             const prev = stones.find(s => s.square === square && s.index === index - 1);
-            const next = stones.find(s => s.square === square && s.index === index + 1);
+            const next = stones.find(s => s.square === square && s.index === (index + 1) % 8);
             // console.log('prev', prev)
             // console.log('next', next)
-            if (prev && next && prev.color === color && next.color === color) {
+            if (prev && next && prev.color === stoneColor && next.color === stoneColor) {
                 return true;
             }
 
             let newLine = true;
             for (let i = 0; i < 3; i++) {
                 const st = stones.find(s => s.square === i && s.index === index);
-                if (!st || st.color !== color) {
+                if (!st || st.color !== stoneColor) {
                     newLine = false;
                     break;
                 }
@@ -180,7 +205,7 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
             const prevPrev = stones.find(s => s.square === square && s.index === prevPrevIndex);
             
 
-            if (prev && prevPrev && prev.color === color && prevPrev.color === color) {
+            if (prev && prevPrev && prev.color === stoneColor && prevPrev.color === stoneColor) {
                 return true;
             }
 
@@ -188,7 +213,7 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
             const next = stones.find(s => s.square === square && s.index === nextIndex);
             const nextNext = stones.find(s => s.square === square && s.index === nextNextIndex);
             
-            if (next && nextNext && next.color === color && nextNext.color === color) {
+            if (next && nextNext && next.color === stoneColor && nextNext.color === stoneColor) {
                 return true;
             }
         }
@@ -201,7 +226,7 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
     const [clickedIndex, setClickedIndex] = useState(null)
 
     useEffect(() => {
-        if (clicked && checkLine(clickedSquare, clickedIndex)) {
+        if (clicked && checkLine(clickedSquare, clickedIndex, color)) {
             setRemoveStoneMode(true);
             setClicked(false);
         } else if (clicked) {
@@ -249,8 +274,15 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
     
     function onStoneClick(square, index, stoneColor) {
         // console.log('stone clicked', square, index, stoneColor)
+
         if (removeStoneMode) {
+            // kod za micanje
             if (color === stoneColor) return;
+
+            const opponentColor = color === 'white' ? 'black' : 'white';
+            if (checkLine(square, index, opponentColor)) return;
+
+            console.log('stone not in line')
 
             setStones(stones.filter(s => !(s.square === square && s.index === index)));
 
@@ -395,6 +427,7 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
             }
             case 'remove': {
                 const { color, square, index } = fromBackend(move);
+                console.log(fromBackend(move))
                 onStoneClick(square, index, color === 'white' ? 'black' : 'white');
                 break;
             }
@@ -529,6 +562,7 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
         setRemoveStoneMode(false);
         setJumpMode(false);
         setColor('white');
+        playedMoves.current = [];
       }
 
     //  This is for human - human game mode
@@ -536,11 +570,13 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
         if (mode === 'human-human') return;
         async function getAiMove() {
             const gameData = toBackendRepr();
+            console.log(gameData)
             try {
                 const response = await axios.post('http://localhost:8000/game/move/', gameData);
                 const newMove = response.data;
-                // console.log(newMove.move)
+                 console.log(newMove.move)
                 playMove(newMove.move);
+                playedMoves.current.push(newMove.move)
             } catch (e) {
                 console.error(e)
             }
@@ -578,7 +614,7 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
       {<div style={{width: "100%", padding: "0%", margin: "0%"}}>
         <div className='game-header'>
                 <button onClick={restartGame} className='game-button' ><i className="ri-restart-fill"></i></button>
-                <button className='game-button' ><i className="ri-home-smile-line"></i></button>
+                <button className='game-button' onClick={() => setModeSelection(true)}><i className="ri-home-smile-line"></i></button>
             </div>
             <div className='game-section'>
             <div className='player-options'>
