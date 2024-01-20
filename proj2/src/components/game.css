@@ -196,3 +196,31 @@ svg {
     fill: #55E72B;
     cursor: pointer;
 }
+
+.stone-circle-remaining-white {
+  width: 20px;
+  height: 20px;
+  padding: 0%;
+  font-size: 16px;
+  text-align: center;
+  justify-content: center;
+  background-color: white; 
+  color: "black";
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 5px;
+}
+
+.stone-circle-remaining-black {
+  width: 20px;
+  height: 20px;
+  text-align: center;
+  justify-content: center;
+  color: white;
+  padding: 0%;
+  font-size: 16px;
+  background-color: black; 
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 5px;
+}

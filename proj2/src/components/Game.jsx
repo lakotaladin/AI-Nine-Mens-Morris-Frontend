@@ -138,11 +138,11 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
 
         const pastMoves = playedMoves.current;
         const pastMovesLength = pastMoves.length;
-        if (pastMovesLength >= 8) {
-            const duplicatedFirst = pastMoves.slice(pastMovesLength - 8, pastMovesLength - 4);
-            const duplicatedLast = pastMoves.slice(pastMovesLength - 4, pastMovesLength);
+        if (pastMovesLength >= 16) {
+            const duplicatedFirst = pastMoves.slice(pastMovesLength - 16, pastMovesLength - 8);
+            const duplicatedLast = pastMoves.slice(pastMovesLength - 8, pastMovesLength);
             let duplicated = true;
-            for (let i = 0; i < 4; i++) {
+            for (let i = 0; i < 8; i++) {
                 if (JSON.stringify(duplicatedFirst[i]) !== JSON.stringify(duplicatedLast[i])) {
                     duplicated = false;
                     break;
@@ -157,7 +157,7 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
 
         if (winner) {
             if (winner === 'draw') {
-                alert('Computer is playing the same moves infinitely');
+                alert('Draw! To meny moves infinitly!');
             } else {
                 alert(`Game over! ${winner} won!`);
             }
@@ -269,8 +269,6 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
         setClicked(clicked);
         
     }
-
-    
     
     function onStoneClick(square, index, stoneColor) {
         // console.log('stone clicked', square, index, stoneColor)
@@ -427,8 +425,9 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
             }
             case 'remove': {
                 const { color, square, index } = fromBackend(move);
-                console.log(fromBackend(move))
+                console.log(fromBackend(move), removeStoneMode)
                 onStoneClick(square, index, color === 'white' ? 'black' : 'white');
+                onStoneClick(square, index, color);
                 break;
             }
         }
@@ -619,7 +618,7 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
             <div className='game-section'>
             <div className='player-options'>
             <h3 style={{color: "white", fontWeight: "bolder", fontSize: "24px", borderBottom: "3px dotted black", marginBottom: "5px", display: "flex", flexDirection: "row"}} >Player 1 <div className="flipping-circle-white"></div></h3>
-                <h3>White remaining: {whiteRemaining}</h3>
+            <h3>{[...Array(whiteRemaining)].map((_, index) => <div key={index} className="stone-circle-remaining-white">{index + 1}</div>)}</h3>
                 <h3>White count: {whiteStonesCount}</h3>
                 {/* <h3>Jump mode: {JSON.stringify(jumpMode)}</h3>  */}
                 {/* Jump mode is true when there are tree remaining peaces */}
@@ -647,8 +646,11 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
             </svg>
             <div className='player-options'>
             <h3 style={{color: "white", fontWeight: "bolder", fontSize: "24px", borderBottom: "3px dotted black", marginBottom: "5px", display: "flex", flexDirection: "row"}} >Player 2 <div className="flipping-circle-black"></div></h3>
-                <h3>Black remaining: {blackRemaining}</h3>
+            {/* <h3 style={{ color: "white", fontWeight: "bolder", fontSize: "24px", borderBottom: "3px dotted black", marginBottom: "5px", display: "flex", flexDirection: "row" }}>Player 2 <div className="flipping-circle-black"></div></h3> */}
+                <h3>{[...Array(blackRemaining)].map((_, index) => <div key={index} className="stone-circle-remaining-black">{index + 1}</div>)}</h3>
                 <h3>Black count: {blackStonesCount}</h3>
+                {/* <h3>Black remaining: {blackRemaining}</h3>
+                <h3>Black count: {blackStonesCount}</h3> */}
                 {/* <h3>Jump mode: {JSON.stringify(jumpMode)}</h3> */}
             </div>
             </div>
