@@ -574,24 +574,36 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
     //  This is for human - human game mode
     useEffect(() => {
         if (mode === 'human-human') return;
+        
         async function getAiMove() {
             const gameData = toBackendRepr();
-            console.log(gameData)
+            console.log(gameData);
+    
             try {
-                // const response = await axios.post('http://localhost:8000/game/move/', gameData);
-                const response = await axios.post('https://ai-nine-mens-morris-backend.vercel.app/game/move/', gameData);
+                let apiUrl = '';
+    
+                // Check if running on localhost
+                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                    apiUrl = 'http://localhost:8000/game/move/';
+                } else {
+                    apiUrl = 'https://ai-nine-mens-morris-backend.vercel.app/game/move/';
+                }
+    
+                const response = await axios.post(apiUrl, gameData);
                 const newMove = response.data;
-                 console.log(newMove.move)
+                console.log(newMove.move);
                 playMove(newMove.move);
-                playedMoves.current.push(newMove.move)
+                playedMoves.current.push(newMove.move);
             } catch (e) {
-                console.error(e)
+                console.error(e);
             }
         }
+    
         if (mode === 'ai-ai' || (mode === 'human-ai' && color === 'black')) {
             getAiMove();
         }
-    }, [color, removeStoneMode])
+    }, [color, removeStoneMode]);
+    
 
 
     return (
