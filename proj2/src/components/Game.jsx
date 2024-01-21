@@ -93,6 +93,9 @@ function Stone({ square, index, color, selected, onStoneClick }) {
     )
 }
 
+
+
+// Game
 export default function Game({ mode, difficulty1, difficulty2, setModeSelection }) {
     // console.log("Created by: Lakota Aladin");
     
@@ -109,11 +112,10 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
     const playedMoves = useRef([]);
 
     
-    // Dodajte referencu za modal
+    
     const modalRef = useRef(null);
 
     useEffect(() => {
-        // Logika za zatvaranje modala
         const handleClickOutsideModal = (event) => {
           if (showModal && modalRef.current && !modalRef.current.contains(event.target)) {
             setShowModal(false);
@@ -179,8 +181,6 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
             // centranli
             const prev = stones.find(s => s.square === square && s.index === index - 1);
             const next = stones.find(s => s.square === square && s.index === (index + 1) % 8);
-            // console.log('prev', prev)
-            // console.log('next', next)
             if (prev && next && prev.color === stoneColor && next.color === stoneColor) {
                 return true;
             }
@@ -237,7 +237,6 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
     
     
     function onCircleClick(square, index) {
-        // console.log('circle clicked', square, index);
         if (removeStoneMode) return;
 
         setClickedSquare(square);
@@ -271,50 +270,58 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
     }
     
     function onStoneClick(square, index, stoneColor) {
-        // console.log('stone clicked', square, index, stoneColor)
-
+        // Ako je aktiviran režim uklanjanja kamena
         if (removeStoneMode) {
-            // kod za micanje
+            // Logika za uklanjanje kamena
             if (color === stoneColor) return;
-
+    
             const opponentColor = color === 'white' ? 'black' : 'white';
+            // Ako je kamen deo linije, ne može biti uklonjen
             if (checkLine(square, index, opponentColor)) return;
-
-            console.log('stone not in line')
-
+    
+            console.log('stone not in line');
+    
+            // Filtriranje kamenova da se ukloni kliknuti kamen
             setStones(stones.filter(s => !(s.square === square && s.index === index)));
-
+    
             setRemoveStoneMode(false);
-
-            // 4 because of setStones taking effect only after next render
+    
+            // Četiri jer setStones ima efekat tek nakon sledećeg rendera
             if (
                 whiteRemaining === 0 && blackRemaining === 0 &&
                 (color === 'white' && blackStonesCount === 4 ||
                 color === 'black' && whiteStonesCount === 4)
             ) {
+                // Aktiviranje režima skakanja ako su uslovi ispunjeni
                 setJumpMode(true);
             }
-
+    
             if (
                 color === 'white' && blackStonesCount === 3 ||
                 color === 'black' && whiteStonesCount === 3
             ) {
-                // Game Over!
+                // Kraj igre!
             }
-
+    
+            // promena boje igraca nakon poteza
             toggleColor();
             return;
         }
-
+    
+        // ako nije u režimu uklanjanja kamena
         if (color !== stoneColor) return;
+        // ako je beli kamen i jos uvek ima preostalih belih kamenova ili crni kamen i jos uvek ima preostalih crnih kamenova
         if (stoneColor === 'white' && whiteRemaining > 0 || stoneColor === 'black' && blackRemaining > 0) return;
+        // ako je vec odabran kamen, a kliknuti kamen je isti kao odabrani, ponisti odabir
         if (selectedStone && selectedStone.square === square && selectedStone.index === index && selectedStone.color === stoneColor) {
             setSelectedStone(null);
         } else {
+            // inace, postavi novi odabrani kamen
             const newStone = stones.find(s => s.square === square && s.index === index && s.color === stoneColor);
             setSelectedStone(newStone);
         }
     }
+    
 
     
     

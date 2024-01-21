@@ -2,6 +2,7 @@ import './ModeSelection.css';
 import playsound from '../assets/sounds/play.wav'
 import { useEffect, useState } from 'react';
 
+// eslint-disable-next-line react/prop-types
 export default function ModeSelection({ setDifficulty1, setDifficulty2, mode, setMode, onFinish }) {
     
     const [value, setValue] = useState(1);
