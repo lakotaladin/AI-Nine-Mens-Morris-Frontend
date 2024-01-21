@@ -303,7 +303,7 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
                 // Kraj igre!
             }
     
-            // promena boje igraca nakon poteza
+            // romena boje igraca nakon poteza
             toggleColor();
             return;
         }
@@ -578,7 +578,8 @@ export default function Game({ mode, difficulty1, difficulty2, setModeSelection 
             const gameData = toBackendRepr();
             console.log(gameData)
             try {
-                const response = await axios.post('http://localhost:8000/game/move/', gameData);
+                // const response = await axios.post('http://localhost:8000/game/move/', gameData);
+                const response = await axios.post('https://ai-nine-mens-morris-backend.vercel.app/game/move/', gameData);
                 const newMove = response.data;
                  console.log(newMove.move)
                 playMove(newMove.move);
