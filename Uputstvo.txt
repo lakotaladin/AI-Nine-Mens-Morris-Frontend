@@ -1,0 +1,8 @@
+Nine Man's Morris:
+
+1. Frontend se pokrece komandom npm run dev, pre toga potrebno je da napisete npm install u terminalu Visual Studio Cod-a kako bi preuzeli sve potrebne biblioteke. *U slucaju da nece da se izvrse komande proverite da li ste u pravom folderu. (Primer: cd proj2)
+ 
+2. Bekend se pokrece sa komandom python manage.py u terminalu Visual Studio Code. Ukoliko projekat nece da se pokrene i pise da nedostaju moduli, onda kucate
+komandu pip install django==4.2.7 i django-cors-headers==4.3.1. *Obavezno proverite da li se nalazite u odgovarajucem folderu kada pokrecete projekat.
+
+
