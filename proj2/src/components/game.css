@@ -1,7 +1,8 @@
 .modal {
   width: 50%;
-  height: 90%;
+  height: 60%;
   display: flex;
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
   flex-direction: column;
   top: 50%;
   left: 50%;
@@ -9,21 +10,32 @@
   padding: 1%;
   z-index: 99999999999999999999999999999;
   background-color: chocolate;
-  font-size: 20px;
-  font-weight: 500;
+  font-size: 22px;
+  font-weight: 700;
   border: 10px dashed black;
   overflow: hidden;
   position: absolute;
 }
 
+.title-howtoplay {
+  font-size: 50px;
+  margin-bottom: 5%;
+}
+
+.modal p {
+  font-weight: bold;
+  font-size: 23px;
+}
+
 
 .htp-modal {
   width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   margin: 2% auto;
-  justify-content: center; 
-  align-items: center; 
+  /* justify-content: center;  */
+  align-items: start; 
   padding: 2%;
   background-color: chocolate;
   font-size: 18px;
